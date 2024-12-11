@@ -54,8 +54,11 @@ jobs:
           app-name: ${{ vars.AZURE_APP_SERVICE_NAME }}
           package: ${{ github.workspace }}/artifact.zip
           startup-command: python app.py
-          app-settings: |
-            SCM_DO_BUILD_DURING_DEPLOYMENT=true
-            PORT=8000
+      - name: ⚙️ Set App Settings in Azure Web App
+        run: |
+          az webapp config appsettings set \
+            --name ${{ vars.AZURE_APP_SERVICE_NAME }} \
+            --resource-group saransh_rg \
+            --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true PORT=8000
       - name: 🧹 Cleanup
         run: rm ${{ github.workspace }}/artifact.zip
