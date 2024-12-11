@@ -51,7 +51,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          resource-group-name: saransh_rg
+          resource-group-name: ${{ vars.ResourceGroup_NAME }}
           app-name: ${{ vars.AZURE_APP_SERVICE_NAME }}
           package: ${{ github.workspace }}/artifact.zip
           startup-command: python app.py
@@ -59,7 +59,7 @@ jobs:
         run: |
           az webapp config appsettings set \
             --name ${{ vars.AZURE_APP_SERVICE_NAME }} \
-            --resource-group saransh_rg \
+            --resource-group ${{ vars.ResourceGroup_NAME }} \
             --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true PORT=8000
       - name: 🧹 Cleanup
         run: rm ${{ github.workspace }}/artifact.zip
