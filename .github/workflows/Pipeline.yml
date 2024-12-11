@@ -1,0 +1,61 @@
+name: Build & deploy Next.js app to Azure Web App
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches:
+      - master
+  # Allow manual workflow trigger
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🌱 Checkout to the branch
+        uses: actions/checkout@v3
+      - name: 🍏 Set up Python version
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: ⚙️ Create, activate virtual environment & install modules
+        run: |
+          python3.11 -m venv antenv
+          source antenv/bin/activate
+          pip install -r requirements.txt
+      - name: 📦 Archive files
+        run: |
+          zip -r artifact.zip . -x "*venv/*" "*antenv/*"
+        env:
+          artifactPath: ${{ github.workspace }}/artifact.zip
+      - name: ⬆️ Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifact
+          path: artifact.zip
+  deploy:
+    name: Release Stage
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+    steps:
+      - name: ⬇️ Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifact
+      - name: 🗝️ Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: 🚀 Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ vars.AZURE_APP_SERVICE_NAME }}
+          package: ${{ github.workspace }}/artifact.zip
+          startup-command: python app.py
+          app-settings: |
+            SCM_DO_BUILD_DURING_DEPLOYMENT=true
+            PORT=8000
+      - name: 🧹 Cleanup
+        run: rm ${{ github.workspace }}/artifact.zip
