@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: 🌱 Checkout to the branch
         uses: actions/checkout@v3
-      - name: 🍏 Set up Python version
+      - name: 🐍 Set up Python version
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
