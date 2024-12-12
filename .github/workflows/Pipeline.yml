@@ -1,4 +1,4 @@
-name: Build & deploy Next.js app to Azure Web App
+name: Build & deploy Python app to Azure Web App
 # When this action will be executed
 on:
   # Automatically trigger it when detected changes in repo
